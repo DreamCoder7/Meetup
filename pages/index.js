@@ -1,26 +1,27 @@
 import MeetupList from "../components/meetups/MeetupList";
+import { getAllMeetups, connectToDb } from "../libs/index";
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    title: "first meetup",
-    image:
-      "https://officialpsds.com/imageview/7q/pj/7qpj3w_large.png?1550944546",
-    address: "some-address 004, st.",
-    description: "",
-  },
-  {
-    id: "m2",
-    title: "second meetup",
-    image:
-      "https://officialpsds.com/imageview/7q/pj/7qpj3w_large.png?1550944546",
-    address: "some-address 004, st.",
-    description: "",
-  },
-];
+function HomePage(props) {
+  return <MeetupList meetups={props.meetups} />;
+}
 
-function HomePage() {
-  return <MeetupList meetups={DUMMY_MEETUPS} />;
+export async function getStaticProps() {
+  const client = await connectToDb();
+  const meetups = await getAllMeetups(client, "meetup", "meetups");
+
+  return {
+    props: {
+      meetups: meetups.map((meetup) => {
+        return {
+          title: meetup.title,
+          image: meetup.image,
+          address: meetup.address,
+          id: meetup._id.toString(),
+        };
+      }),
+      revalidate: 1,
+    },
+  };
 }
 
 export default HomePage;
